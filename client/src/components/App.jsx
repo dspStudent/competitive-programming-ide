@@ -19,7 +19,7 @@ function getInitialCode() {
 
 export default function App() {
   const [code, setCode] = useState(getInitialCode);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(() => localStorage.getItem(STORAGE_KEYS.INPUT) || '');
   const [theme, setTheme] = useState(() => localStorage.getItem(STORAGE_KEYS.THEME) || 'dark');
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.FONT_SIZE)) || 14);
   const [tabSize, setTabSize] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.TAB_SIZE)) || 4);
@@ -29,10 +29,14 @@ export default function App() {
 
   const { output, status, error, executionTime, isRunning, runCode } = useCodeRunner();
 
-  // Persist code to localStorage
+  // Persist code and input to localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.CODE, code);
   }, [code]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.INPUT, input);
+  }, [input]);
 
   // Set theme attribute on document
   useEffect(() => {

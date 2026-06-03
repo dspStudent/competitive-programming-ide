@@ -1,10 +1,14 @@
 import { useState, useCallback } from 'react';
+import { STORAGE_KEYS } from '../utils/constants';
 
 export function useCodeRunner() {
-  const [output, setOutput] = useState('');
-  const [status, setStatus] = useState(null);
-  const [error, setError] = useState('');
-  const [executionTime, setExecutionTime] = useState(null);
+  const [output, setOutput] = useState(() => localStorage.getItem(STORAGE_KEYS.OUTPUT) || '');
+  const [status, setStatus] = useState(() => localStorage.getItem(STORAGE_KEYS.OUTPUT_STATUS) || null);
+  const [error, setError] = useState(() => localStorage.getItem(STORAGE_KEYS.OUTPUT_ERROR) || '');
+  const [executionTime, setExecutionTime] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.EXECUTION_TIME);
+    return saved ? Number(saved) : null;
+  });
   const [isRunning, setIsRunning] = useState(false);
 
   const runCode = useCallback(async (code, input) => {
@@ -27,10 +31,21 @@ export function useCodeRunner() {
       setStatus(result.status);
       setExecutionTime(result.executionTime);
 
+      // Persist output to localStorage
+      localStorage.setItem(STORAGE_KEYS.OUTPUT, result.output || '');
+      localStorage.setItem(STORAGE_KEYS.OUTPUT_ERROR, result.error || '');
+      localStorage.setItem(STORAGE_KEYS.OUTPUT_STATUS, result.status || '');
+      localStorage.setItem(STORAGE_KEYS.EXECUTION_TIME, result.executionTime != null ? String(result.executionTime) : '');
+
       return result;
     } catch (err) {
+      const errMsg = `Network error: ${err.message}. Is the server running?`;
       setStatus('ERROR');
-      setError(`Network error: ${err.message}. Is the server running?`);
+      setError(errMsg);
+      localStorage.setItem(STORAGE_KEYS.OUTPUT, '');
+      localStorage.setItem(STORAGE_KEYS.OUTPUT_ERROR, errMsg);
+      localStorage.setItem(STORAGE_KEYS.OUTPUT_STATUS, 'ERROR');
+      localStorage.setItem(STORAGE_KEYS.EXECUTION_TIME, '');
       return { status: 'ERROR', output: '', error: err.message, executionTime: null };
     } finally {
       setIsRunning(false);

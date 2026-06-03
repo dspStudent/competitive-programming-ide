@@ -1,50 +1,61 @@
-/* ===== CSS Variables ===== */
+/* ===== CSS Variables - IntelliJ Darcula Dark ===== */
 :root {
-  --bg-primary: #1e1e1e;
-  --bg-secondary: #252526;
-  --bg-tertiary: #2d2d2d;
-  --bg-input: #1e1e1e;
-  --text-primary: #cccccc;
-  --text-secondary: #858585;
-  --text-heading: #e0e0e0;
-  --border-color: #3e3e3e;
-  --accent: #0078d4;
-  --accent-hover: #1a8cdf;
-  --btn-bg: #0e639c;
-  --btn-hover: #1177bb;
-  --badge-ok: #4ec9b0;
-  --badge-ce: #f44747;
-  --badge-rte: #ce9178;
-  --badge-tle: #dcdcaa;
-  --badge-mle: #c586c0;
-  --badge-error: #f44747;
-  --badge-running: #569cd6;
-  --scrollbar-bg: #1e1e1e;
-  --scrollbar-thumb: #424242;
+  --bg-primary: #2B2B2B;
+  --bg-secondary: #3C3F41;
+  --bg-tertiary: #45494A;
+  --bg-input: #2B2B2B;
+  --text-primary: #A9B7C6;
+  --text-secondary: #787878;
+  --text-heading: #BBBBBB;
+  --border-color: #515151;
+  --accent: #4A78C2;
+  --accent-hover: #5B8AD4;
+  --btn-bg: #365880;
+  --btn-hover: #4A78C2;
+  --btn-run-bg: #499C54;
+  --btn-run-hover: #5AAE65;
+  --badge-ok: #499C54;
+  --badge-ce: #CF5B56;
+  --badge-rte: #CE9178;
+  --badge-tle: #D4A843;
+  --badge-mle: #B07CD8;
+  --badge-error: #CF5B56;
+  --badge-running: #6897BB;
+  --scrollbar-bg: #2B2B2B;
+  --scrollbar-thumb: #4F4F4F;
+  --toolbar-bg: #3C3F41;
+  --statusbar-bg: #3C3F41;
+  --panel-header-bg: #313335;
 }
 
+/* ===== IntelliJ Light theme ===== */
 [data-theme="light"] {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f3f3f3;
-  --bg-tertiary: #e8e8e8;
-  --bg-input: #ffffff;
-  --text-primary: #333333;
-  --text-secondary: #666666;
-  --text-heading: #1e1e1e;
-  --border-color: #d4d4d4;
-  --accent: #0078d4;
-  --accent-hover: #005a9e;
-  --btn-bg: #0078d4;
-  --btn-hover: #005a9e;
-  --badge-ok: #16825d;
-  --badge-ce: #cd3131;
-  --badge-rte: #a31515;
-  --badge-tle: #795e26;
-  --badge-mle: #af00db;
-  --badge-error: #cd3131;
-  --badge-running: #0451a5;
-  --scrollbar-bg: #f3f3f3;
-  --scrollbar-thumb: #c1c1c1;
+  --bg-primary: #F5F5F5;
+  --bg-secondary: #E8E8E8;
+  --bg-tertiary: #DBDBDB;
+  --bg-input: #FFFFFF;
+  --text-primary: #000000;
+  --text-secondary: #787878;
+  --text-heading: #1E1E1E;
+  --border-color: #C4C4C4;
+  --accent: #4A78C2;
+  --accent-hover: #3B69B3;
+  --btn-bg: #4A78C2;
+  --btn-hover: #3B69B3;
+  --btn-run-bg: #59A869;
+  --btn-run-hover: #4A9759;
+  --badge-ok: #59A869;
+  --badge-ce: #CF5B56;
+  --badge-rte: #A31515;
+  --badge-tle: #9E7700;
+  --badge-mle: #9C27B0;
+  --badge-error: #CF5B56;
+  --badge-running: #4A78C2;
+  --scrollbar-bg: #F5F5F5;
+  --scrollbar-thumb: #C1C1C1;
+  --toolbar-bg: #E8E8E8;
+  --statusbar-bg: #E8E8E8;
+  --panel-header-bg: #EBEBEB;
 }
 
 /* ===== Global ===== */
@@ -67,14 +78,14 @@ body {
   overflow: hidden;
 }
 
-/* ===== Toolbar ===== */
+/* ===== Toolbar (IntelliJ-style) ===== */
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 40px;
+  height: 38px;
   padding: 0 12px;
-  background: var(--bg-secondary);
+  background: var(--toolbar-bg);
   border-bottom: 1px solid var(--border-color);
   user-select: none;
 }
@@ -93,7 +104,7 @@ body {
 
 .toolbar-title {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-heading);
 }
 
@@ -108,19 +119,19 @@ body {
 }
 
 .btn-run {
-  background: var(--btn-bg);
+  background: var(--btn-run-bg);
   color: #fff;
   border: none;
-  padding: 5px 20px;
+  padding: 4px 18px;
   border-radius: 3px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .btn-run:hover:not(:disabled) {
-  background: var(--btn-hover);
+  background: var(--btn-run-hover);
 }
 
 .btn-run:disabled {
@@ -134,7 +145,7 @@ body {
   border: 1px solid var(--border-color);
   padding: 3px 10px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -155,12 +166,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 12px;
-  background: var(--bg-secondary);
+  padding: 5px 12px;
+  background: var(--panel-header-bg);
   border-bottom: 1px solid var(--border-color);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   user-select: none;
 }
 
@@ -170,8 +183,9 @@ body {
   border: 1px solid var(--border-color);
   padding: 1px 8px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 10px;
   cursor: pointer;
+  text-transform: none;
   transition: background 0.15s;
 }
 
@@ -188,7 +202,7 @@ body {
   color: var(--text-primary);
   border: none;
   resize: none;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace;
   font-size: 13px;
   line-height: 1.5;
   outline: none;
@@ -203,7 +217,7 @@ body {
   margin: 0;
   padding: 8px 12px;
   overflow: auto;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace;
   font-size: 13px;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -221,11 +235,12 @@ body {
   margin-left: 8px;
   padding: 1px 8px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
+  text-transform: none;
 }
 
-.badge-ok { background: var(--badge-ok); color: #000; }
+.badge-ok { background: var(--badge-ok); color: #fff; }
 .badge-ce { background: var(--badge-ce); color: #fff; }
 .badge-rte { background: var(--badge-rte); color: #fff; }
 .badge-tle { background: var(--badge-tle); color: #000; }
@@ -233,16 +248,17 @@ body {
 .badge-error { background: var(--badge-error); color: #fff; }
 .badge-running { background: var(--badge-running); color: #fff; }
 
-/* ===== Status Bar ===== */
+/* ===== Status Bar (IntelliJ-style) ===== */
 .statusbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 24px;
+  height: 22px;
   padding: 0 12px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 12px;
+  background: var(--statusbar-bg);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 11px;
   user-select: none;
 }
 
@@ -253,6 +269,7 @@ body {
 
 .statusbar-time {
   font-weight: 600;
+  color: var(--badge-ok);
 }
 
 /* ===== Modals ===== */
@@ -276,7 +293,7 @@ body {
   padding: 24px;
   max-width: 480px;
   width: 90%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .modal-settings {
@@ -284,7 +301,7 @@ body {
 }
 
 .modal-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   margin-bottom: 12px;
   color: var(--text-heading);
@@ -295,7 +312,7 @@ body {
 }
 
 .modal-message {
-  font-size: 14px;
+  font-size: 13px;
   margin-bottom: 12px;
   color: var(--text-primary);
 }
@@ -303,7 +320,7 @@ body {
 .modal-hints {
   margin: 12px 0 20px;
   padding-left: 20px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.6;
 }
@@ -311,9 +328,9 @@ body {
 .btn-modal-close,
 .btn-modal-save,
 .btn-modal-cancel {
-  padding: 6px 16px;
+  padding: 5px 16px;
   border-radius: 3px;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   border: none;
   transition: background 0.15s;
@@ -337,12 +354,12 @@ body {
 }
 
 .btn-modal-save {
-  background: var(--btn-bg);
+  background: var(--btn-run-bg);
   color: #fff;
 }
 
 .btn-modal-save:hover {
-  background: var(--btn-hover);
+  background: var(--btn-run-hover);
 }
 
 .btn-modal-cancel {
@@ -361,14 +378,14 @@ body {
 }
 
 .settings-section h3 {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   margin-bottom: 6px;
   color: var(--text-heading);
 }
 
 .settings-hint {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-secondary);
   margin-bottom: 8px;
 }
@@ -384,7 +401,7 @@ body {
   align-items: center;
   gap: 12px;
   margin-bottom: 8px;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .settings-row label {
@@ -399,12 +416,12 @@ body {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: 3px;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .settings-row input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
 }
 
@@ -424,7 +441,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #606060;
 }
 
 /* ===== Allotment overrides ===== */
