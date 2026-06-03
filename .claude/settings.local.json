@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\X271274\\\\OneDrive - MerckGroup\\\\Desktop\\\\Security topics\\\\Persnal\\\\IDE\" /s /b)",
+      "Bash(test:*)",
+      "WebSearch",
+      "Bash(npm install)"
+    ]
+  }
+}

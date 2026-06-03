@@ -1,0 +1,14 @@
+{
+  "name": "competitive-programming-ide",
+  "version": "1.0.0",
+  "description": "Local web-based Competitive Programming IDE for Java",
+  "scripts": {
+    "install-all": "cd server && npm install && cd ../client && npm install",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "start": "concurrently \"cd server && npm start\" \"cd client && npm run preview\"",
+    "build": "cd client && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
