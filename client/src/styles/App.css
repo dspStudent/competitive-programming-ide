@@ -139,6 +139,28 @@ body {
   cursor: not-allowed;
 }
 
+.btn-stop {
+  background: #CF5B56;
+  color: #fff;
+  border: none;
+  padding: 4px 18px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-stop:hover {
+  background: #E06B66;
+}
+
+.toolbar-limits {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+}
+
 .btn-toolbar {
   background: transparent;
   color: var(--text-primary);
@@ -270,6 +292,35 @@ body {
 .statusbar-time {
   font-weight: 600;
   color: var(--badge-ok);
+}
+
+.statusbar-time.time-exceeded {
+  color: var(--badge-ce);
+}
+
+.statusbar-limits {
+  color: var(--text-secondary);
+}
+
+.statusbar-status.status-ok {
+  color: var(--badge-ok);
+}
+
+.statusbar-status.status-error {
+  color: var(--badge-ce);
+}
+
+.statusbar-status.status-warn {
+  color: var(--badge-tle);
+}
+
+.statusbar-status.status-running {
+  color: var(--badge-running);
+}
+
+.settings-value-hint {
+  color: var(--text-secondary);
+  font-size: 11px;
 }
 
 /* ===== Modals ===== */

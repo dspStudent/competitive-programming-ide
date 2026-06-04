@@ -11,7 +11,7 @@ export function useCodeRunner() {
   });
   const [isRunning, setIsRunning] = useState(false);
 
-  const runCode = useCallback(async (code, input) => {
+  const runCode = useCallback(async (code, input, timeLimit, memoryLimit) => {
     setIsRunning(true);
     setOutput('');
     setError('');
@@ -22,7 +22,7 @@ export function useCodeRunner() {
       const response = await fetch('/api/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, input }),
+        body: JSON.stringify({ code, input, timeLimit, memoryLimit }),
       });
 
       const result = await response.json();
@@ -31,7 +31,6 @@ export function useCodeRunner() {
       setStatus(result.status);
       setExecutionTime(result.executionTime);
 
-      // Persist output to localStorage
       localStorage.setItem(STORAGE_KEYS.OUTPUT, result.output || '');
       localStorage.setItem(STORAGE_KEYS.OUTPUT_ERROR, result.error || '');
       localStorage.setItem(STORAGE_KEYS.OUTPUT_STATUS, result.status || '');
@@ -52,5 +51,16 @@ export function useCodeRunner() {
     }
   }, []);
 
-  return { output, status, error, executionTime, isRunning, runCode };
+  const stopCode = useCallback(async () => {
+    try {
+      await fetch('/api/stop', { method: 'POST' });
+    } catch (e) {}
+    setIsRunning(false);
+    setStatus('STOPPED');
+    setError('Program terminated by user.');
+    localStorage.setItem(STORAGE_KEYS.OUTPUT_STATUS, 'STOPPED');
+    localStorage.setItem(STORAGE_KEYS.OUTPUT_ERROR, 'Program terminated by user.');
+  }, []);
+
+  return { output, status, error, executionTime, isRunning, runCode, stopCode };
 }

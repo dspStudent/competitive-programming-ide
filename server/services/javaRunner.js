@@ -1,26 +1,42 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { spawn } = require('child_process');
 const { v4: uuidv4 } = require('uuid');
 const { runProcess } = require('../utils/processManager');
 
 const COMPILE_TIMEOUT = 15000;
-const EXECUTION_TIMEOUT = 10000;
 
-/**
- * Extracts the public class name from Java source code.
- * Falls back to "Main" if no public class found.
- */
+// Store the current running process so we can kill it
+let currentProcess = null;
+
 function extractClassName(code) {
   const match = code.match(/public\s+class\s+(\w+)/);
   return match ? match[1] : 'Main';
 }
 
 /**
- * Compiles and runs Java code with the given input.
- * Returns { status, output, error, executionTime }
+ * Kill the currently running process
  */
-async function compileAndRun(code, input = '') {
+function stopCurrentProcess() {
+  if (currentProcess) {
+    try {
+      currentProcess.kill('SIGKILL');
+    } catch (e) {}
+    currentProcess = null;
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Compiles and runs Java code with configurable limits.
+ * @param {string} code - Java source code
+ * @param {string} input - stdin input
+ * @param {number} timeLimit - time limit in milliseconds
+ * @param {number} memoryLimit - memory limit in MB
+ */
+async function compileAndRun(code, input = '', timeLimit = 10000, memoryLimit = 256) {
   const tempId = uuidv4();
   const tempDir = path.join(os.tmpdir(), `cp-ide-${tempId}`);
   const className = extractClassName(code);
@@ -54,24 +70,64 @@ async function compileAndRun(code, input = '') {
       };
     }
 
-    // Execution
+    // Execution with configurable limits
     const startTime = Date.now();
-    const execResult = await runProcess(
-      'java',
-      ['-Xmx256m', '-cp', tempDir, className],
-      {
-        timeout: EXECUTION_TIMEOUT,
-        input,
+    const execResult = await new Promise((resolve) => {
+      let stdout = '';
+      let stderr = '';
+      let timedOut = false;
+      let killed = false;
+
+      const proc = spawn('java', [`-Xmx${memoryLimit}m`, '-cp', tempDir, className], {
         cwd: tempDir,
+        shell: true,
+      });
+
+      currentProcess = proc;
+
+      const timer = setTimeout(() => {
+        timedOut = true;
+        killed = true;
+        try { proc.kill('SIGKILL'); } catch (e) {}
+      }, timeLimit);
+
+      proc.stdout.on('data', (data) => {
+        stdout += data.toString();
+        if (stdout.length > 1024 * 1024) {
+          killed = true;
+          try { proc.kill('SIGKILL'); } catch (e) {}
+        }
+      });
+
+      proc.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      if (input) {
+        proc.stdin.write(input);
       }
-    );
+      proc.stdin.end();
+
+      proc.on('close', (exitCode) => {
+        clearTimeout(timer);
+        currentProcess = null;
+        resolve({ stdout: stdout.substring(0, 1024 * 1024), stderr, exitCode, timedOut, killed });
+      });
+
+      proc.on('error', (err) => {
+        clearTimeout(timer);
+        currentProcess = null;
+        resolve({ stdout: '', stderr: err.message, exitCode: -1, timedOut: false, killed: false });
+      });
+    });
+
     const executionTime = Date.now() - startTime;
 
     if (execResult.timedOut) {
       return {
         status: 'TLE',
         output: execResult.stdout,
-        error: `Time Limit Exceeded (${EXECUTION_TIMEOUT / 1000}s limit)`,
+        error: `Time Limit Exceeded (${(timeLimit / 1000).toFixed(1)}s limit)`,
         executionTime,
       };
     }
@@ -80,7 +136,7 @@ async function compileAndRun(code, input = '') {
       return {
         status: 'MLE',
         output: execResult.stdout,
-        error: 'Memory Limit Exceeded (256MB limit)',
+        error: `Memory Limit Exceeded (${memoryLimit}MB limit)`,
         executionTime,
       };
     }
@@ -101,13 +157,11 @@ async function compileAndRun(code, input = '') {
       executionTime,
     };
   } finally {
-    // Cleanup temp directory
+    currentProcess = null;
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch (e) {
-      // Ignore cleanup errors
-    }
+    } catch (e) {}
   }
 }
 
-module.exports = { compileAndRun };
+module.exports = { compileAndRun, stopCurrentProcess };

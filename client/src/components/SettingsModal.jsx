@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { STORAGE_KEYS, DEFAULT_TEMPLATE } from '../utils/constants';
 
-export default function SettingsModal({ onClose, theme, fontSize, tabSize, wordWrap, onSettingsChange }) {
+export default function SettingsModal({ onClose, theme, fontSize, tabSize, wordWrap, timeLimit, memoryLimit, onSettingsChange }) {
   const [template, setTemplate] = useState('');
   const [localFontSize, setLocalFontSize] = useState(fontSize);
   const [localTabSize, setLocalTabSize] = useState(tabSize);
   const [localWordWrap, setLocalWordWrap] = useState(wordWrap);
+  const [localTimeLimit, setLocalTimeLimit] = useState(timeLimit);
+  const [localMemoryLimit, setLocalMemoryLimit] = useState(memoryLimit);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.TEMPLATE);
@@ -26,7 +28,15 @@ export default function SettingsModal({ onClose, theme, fontSize, tabSize, wordW
     localStorage.setItem(STORAGE_KEYS.FONT_SIZE, localFontSize.toString());
     localStorage.setItem(STORAGE_KEYS.TAB_SIZE, localTabSize.toString());
     localStorage.setItem(STORAGE_KEYS.WORD_WRAP, localWordWrap.toString());
-    onSettingsChange({ fontSize: localFontSize, tabSize: localTabSize, wordWrap: localWordWrap });
+    localStorage.setItem(STORAGE_KEYS.TIME_LIMIT, localTimeLimit.toString());
+    localStorage.setItem(STORAGE_KEYS.MEMORY_LIMIT, localMemoryLimit.toString());
+    onSettingsChange({
+      fontSize: localFontSize,
+      tabSize: localTabSize,
+      wordWrap: localWordWrap,
+      timeLimit: localTimeLimit,
+      memoryLimit: localMemoryLimit,
+    });
     onClose();
   }
 
@@ -36,13 +46,43 @@ export default function SettingsModal({ onClose, theme, fontSize, tabSize, wordW
         <h2 className="modal-title">Settings</h2>
 
         <div className="settings-section">
+          <h3>Execution Limits</h3>
+          <p className="settings-hint">
+            Configure TLE and MLE thresholds for your runs
+          </p>
+          <div className="settings-row">
+            <label>Time Limit (ms):</label>
+            <input
+              type="number"
+              min="500"
+              max="30000"
+              step="500"
+              value={localTimeLimit}
+              onChange={(e) => setLocalTimeLimit(Number(e.target.value))}
+            />
+            <span className="settings-value-hint">{(localTimeLimit / 1000).toFixed(1)}s</span>
+          </div>
+          <div className="settings-row">
+            <label>Memory Limit (MB):</label>
+            <input
+              type="number"
+              min="64"
+              max="1024"
+              step="64"
+              value={localMemoryLimit}
+              onChange={(e) => setLocalMemoryLimit(Number(e.target.value))}
+            />
+          </div>
+        </div>
+
+        <div className="settings-section">
           <h3>Default Template</h3>
           <p className="settings-hint">
             This template loads when you click "New File"
           </p>
           <div className="settings-editor">
             <Editor
-              height="250px"
+              height="200px"
               language="java"
               theme={theme === 'dark' ? 'vs-dark' : 'light'}
               value={template}

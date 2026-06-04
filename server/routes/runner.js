@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { compileAndRun } = require('../services/javaRunner');
+const { compileAndRun, stopCurrentProcess } = require('../services/javaRunner');
 
 let isRunning = false;
 
@@ -9,12 +9,12 @@ router.post('/run', async (req, res) => {
     return res.status(429).json({
       status: 'ERROR',
       output: '',
-      error: 'A program is already running. Please wait.',
+      error: 'A program is already running. Please wait or click Stop.',
       executionTime: null,
     });
   }
 
-  const { code, input } = req.body;
+  const { code, input, timeLimit, memoryLimit } = req.body;
 
   if (!code || typeof code !== 'string') {
     return res.status(400).json({
@@ -25,9 +25,12 @@ router.post('/run', async (req, res) => {
     });
   }
 
+  const tl = Math.max(500, Math.min(30000, timeLimit || 10000));
+  const ml = Math.max(64, Math.min(1024, memoryLimit || 256));
+
   try {
     isRunning = true;
-    const result = await compileAndRun(code, input || '');
+    const result = await compileAndRun(code, input || '', tl, ml);
     res.json(result);
   } catch (err) {
     res.status(500).json({
@@ -39,6 +42,13 @@ router.post('/run', async (req, res) => {
   } finally {
     isRunning = false;
   }
+});
+
+// POST /api/stop - Kill the currently running program
+router.post('/stop', (req, res) => {
+  const killed = stopCurrentProcess();
+  isRunning = false;
+  res.json({ stopped: killed });
 });
 
 router.post('/check', async (req, res) => {

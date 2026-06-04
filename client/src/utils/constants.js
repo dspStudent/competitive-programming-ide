@@ -16,9 +16,11 @@ export const STORAGE_KEYS = {
   FONT_SIZE: 'cp-ide-font-size',
   TAB_SIZE: 'cp-ide-tab-size',
   WORD_WRAP: 'cp-ide-word-wrap',
+  TIME_LIMIT: 'cp-ide-time-limit',
+  MEMORY_LIMIT: 'cp-ide-memory-limit',
 };
 
 export const EXECUTION_LIMITS = {
-  TIME_LIMIT_MS: 10000,
+  TIME_LIMIT_MS: 2000,
   MEMORY_LIMIT_MB: 256,
 };

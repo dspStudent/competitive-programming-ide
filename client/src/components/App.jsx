@@ -9,7 +9,7 @@ import StatusBar from './StatusBar';
 import AlertModal from './AlertModal';
 import SettingsModal from './SettingsModal';
 import { useCodeRunner } from '../hooks/useCodeRunner';
-import { STORAGE_KEYS, DEFAULT_TEMPLATE } from '../utils/constants';
+import { STORAGE_KEYS, DEFAULT_TEMPLATE, EXECUTION_LIMITS } from '../utils/constants';
 
 function getInitialCode() {
   return localStorage.getItem(STORAGE_KEYS.CODE) ||
@@ -24,10 +24,12 @@ export default function App() {
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.FONT_SIZE)) || 14);
   const [tabSize, setTabSize] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.TAB_SIZE)) || 4);
   const [wordWrap, setWordWrap] = useState(() => localStorage.getItem(STORAGE_KEYS.WORD_WRAP) === 'true');
+  const [timeLimit, setTimeLimit] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.TIME_LIMIT)) || EXECUTION_LIMITS.TIME_LIMIT_MS);
+  const [memoryLimit, setMemoryLimit] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.MEMORY_LIMIT)) || EXECUTION_LIMITS.MEMORY_LIMIT_MB);
   const [alertType, setAlertType] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
 
-  const { output, status, error, executionTime, isRunning, runCode } = useCodeRunner();
+  const { output, status, error, executionTime, isRunning, runCode, stopCode } = useCodeRunner();
 
   // Persist code and input to localStorage
   useEffect(() => {
@@ -54,8 +56,13 @@ export default function App() {
   // Run handler
   const handleRun = useCallback(async () => {
     if (isRunning) return;
-    await runCode(code, input);
-  }, [code, input, isRunning, runCode]);
+    await runCode(code, input, timeLimit, memoryLimit);
+  }, [code, input, isRunning, runCode, timeLimit, memoryLimit]);
+
+  // Stop handler
+  const handleStop = useCallback(() => {
+    stopCode();
+  }, [stopCode]);
 
   // Listen for custom run event from editor keybindings
   useEffect(() => {
@@ -78,21 +85,26 @@ export default function App() {
     setCode(template);
   }
 
-  function handleSettingsChange({ fontSize: fs, tabSize: ts, wordWrap: ww }) {
+  function handleSettingsChange({ fontSize: fs, tabSize: ts, wordWrap: ww, timeLimit: tl, memoryLimit: ml }) {
     setFontSize(fs);
     setTabSize(ts);
     setWordWrap(ww);
+    setTimeLimit(tl);
+    setMemoryLimit(ml);
   }
 
   return (
     <div className="app-container">
       <Toolbar
         onRun={handleRun}
+        onStop={handleStop}
         isRunning={isRunning}
         theme={theme}
         onThemeToggle={handleThemeToggle}
         onNewFile={handleNewFile}
         onOpenSettings={() => setShowSettings(true)}
+        timeLimit={timeLimit}
+        memoryLimit={memoryLimit}
       />
 
       <div className="main-content">
@@ -121,7 +133,13 @@ export default function App() {
         </Allotment>
       </div>
 
-      <StatusBar status={status} executionTime={executionTime} isRunning={isRunning} />
+      <StatusBar
+        status={status}
+        executionTime={executionTime}
+        isRunning={isRunning}
+        timeLimit={timeLimit}
+        memoryLimit={memoryLimit}
+      />
 
       {alertType && (
         <AlertModal type={alertType} onClose={() => setAlertType(null)} />
@@ -134,6 +152,8 @@ export default function App() {
           fontSize={fontSize}
           tabSize={tabSize}
           wordWrap={wordWrap}
+          timeLimit={timeLimit}
+          memoryLimit={memoryLimit}
           onSettingsChange={handleSettingsChange}
         />
       )}

@@ -8,6 +8,7 @@ const STATUS_LABELS = {
   MLE: { text: 'Memory Limit Exceeded', className: 'badge-mle' },
   ERROR: { text: 'Error', className: 'badge-error' },
   RUNNING: { text: 'Running...', className: 'badge-running' },
+  STOPPED: { text: 'Terminated', className: 'badge-error' },
 };
 
 export default function OutputPanel({ output, error, status }) {
