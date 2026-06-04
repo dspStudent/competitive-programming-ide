@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
 import CodeEditor from './CodeEditor';
 import InputPanel from './InputPanel';
+import ExpectedOutputPanel from './ExpectedOutputPanel';
 import OutputPanel from './OutputPanel';
 import Toolbar from './Toolbar';
 import StatusBar from './StatusBar';
@@ -20,16 +21,27 @@ function getInitialCode() {
 export default function App() {
   const [code, setCode] = useState(getInitialCode);
   const [input, setInput] = useState(() => localStorage.getItem(STORAGE_KEYS.INPUT) || '');
+  const [expectedOutput, setExpectedOutput] = useState(() => localStorage.getItem(STORAGE_KEYS.EXPECTED_OUTPUT) || '');
   const [theme, setTheme] = useState(() => localStorage.getItem(STORAGE_KEYS.THEME) || 'dark');
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.FONT_SIZE)) || 14);
   const [tabSize, setTabSize] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.TAB_SIZE)) || 4);
   const [wordWrap, setWordWrap] = useState(() => localStorage.getItem(STORAGE_KEYS.WORD_WRAP) === 'true');
+  const [minimap, setMinimap] = useState(() => localStorage.getItem(STORAGE_KEYS.MINIMAP) !== 'false');
   const [timeLimit, setTimeLimit] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.TIME_LIMIT)) || EXECUTION_LIMITS.TIME_LIMIT_MS);
   const [memoryLimit, setMemoryLimit] = useState(() => Number(localStorage.getItem(STORAGE_KEYS.MEMORY_LIMIT)) || EXECUTION_LIMITS.MEMORY_LIMIT_MB);
+  const [caseInsensitive, setCaseInsensitive] = useState(() => localStorage.getItem(STORAGE_KEYS.CASE_INSENSITIVE) === 'true');
+  const [trimWhitespace, setTrimWhitespace] = useState(() => localStorage.getItem(STORAGE_KEYS.TRIM_WHITESPACE) !== 'false');
+  const [ignoreBlankLines, setIgnoreBlankLines] = useState(() => localStorage.getItem(STORAGE_KEYS.IGNORE_BLANK_LINES) === 'true');
   const [alertType, setAlertType] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
 
   const { output, status, error, executionTime, isRunning, runCode, stopCode } = useCodeRunner();
+
+  const comparisonSettings = useMemo(() => ({
+    caseInsensitive,
+    trimWhitespace,
+    ignoreBlankLines,
+  }), [caseInsensitive, trimWhitespace, ignoreBlankLines]);
 
   // Persist code and input to localStorage
   useEffect(() => {
@@ -39,6 +51,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.INPUT, input);
   }, [input]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.EXPECTED_OUTPUT, expectedOutput);
+  }, [expectedOutput]);
 
   // Set theme attribute on document
   useEffect(() => {
@@ -85,12 +101,16 @@ export default function App() {
     setCode(template);
   }
 
-  function handleSettingsChange({ fontSize: fs, tabSize: ts, wordWrap: ww, timeLimit: tl, memoryLimit: ml }) {
-    setFontSize(fs);
-    setTabSize(ts);
-    setWordWrap(ww);
-    setTimeLimit(tl);
-    setMemoryLimit(ml);
+  function handleSettingsChange(settings) {
+    setFontSize(settings.fontSize);
+    setTabSize(settings.tabSize);
+    setWordWrap(settings.wordWrap);
+    setMinimap(settings.minimap);
+    setTimeLimit(settings.timeLimit);
+    setMemoryLimit(settings.memoryLimit);
+    setCaseInsensitive(settings.caseInsensitive);
+    setTrimWhitespace(settings.trimWhitespace);
+    setIgnoreBlankLines(settings.ignoreBlankLines);
   }
 
   return (
@@ -121,12 +141,21 @@ export default function App() {
             />
           </Allotment.Pane>
           <Allotment.Pane minSize={200}>
-            <Allotment vertical defaultSizes={[50, 50]}>
-              <Allotment.Pane minSize={80}>
+            <Allotment vertical defaultSizes={[33, 33, 34]}>
+              <Allotment.Pane minSize={60}>
                 <InputPanel input={input} onChange={setInput} />
               </Allotment.Pane>
-              <Allotment.Pane minSize={80}>
-                <OutputPanel output={output} error={error} status={status} />
+              <Allotment.Pane minSize={60}>
+                <ExpectedOutputPanel expectedOutput={expectedOutput} onChange={setExpectedOutput} />
+              </Allotment.Pane>
+              <Allotment.Pane minSize={60}>
+                <OutputPanel
+                  output={output}
+                  error={error}
+                  status={status}
+                  expectedOutput={expectedOutput}
+                  comparisonSettings={comparisonSettings}
+                />
               </Allotment.Pane>
             </Allotment>
           </Allotment.Pane>
@@ -152,8 +181,12 @@ export default function App() {
           fontSize={fontSize}
           tabSize={tabSize}
           wordWrap={wordWrap}
+          minimap={minimap}
           timeLimit={timeLimit}
           memoryLimit={memoryLimit}
+          caseInsensitive={caseInsensitive}
+          trimWhitespace={trimWhitespace}
+          ignoreBlankLines={ignoreBlankLines}
           onSettingsChange={handleSettingsChange}
         />
       )}

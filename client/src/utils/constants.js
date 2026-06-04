@@ -16,8 +16,13 @@ export const STORAGE_KEYS = {
   FONT_SIZE: 'cp-ide-font-size',
   TAB_SIZE: 'cp-ide-tab-size',
   WORD_WRAP: 'cp-ide-word-wrap',
+  MINIMAP: 'cp-ide-minimap',
   TIME_LIMIT: 'cp-ide-time-limit',
   MEMORY_LIMIT: 'cp-ide-memory-limit',
+  EXPECTED_OUTPUT: 'cp-ide-expected-output',
+  CASE_INSENSITIVE: 'cp-ide-case-insensitive',
+  TRIM_WHITESPACE: 'cp-ide-trim-whitespace',
+  IGNORE_BLANK_LINES: 'cp-ide-ignore-blank-lines',
 };
 
 export const EXECUTION_LIMITS = {
