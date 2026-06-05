@@ -210,7 +210,7 @@ export default function SettingsModal({
       <div className="settings-tab-content settings-tab-template">
         <div className="settings-card settings-card-full">
           <h4 className="settings-card-title">Default Template</h4>
-          <p className="settings-hint">This template loads when you click "New File"</p>
+          <p className="settings-hint">This template loads when you create a new file. Use %s as placeholder for the class name.</p>
           <div className="settings-editor">
             <Editor
               height="300px"

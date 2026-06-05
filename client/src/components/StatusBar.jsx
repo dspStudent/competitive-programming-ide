@@ -6,7 +6,7 @@ function formatTime(ms) {
   return `${(ms / 1000).toFixed(2)} s`;
 }
 
-export default function StatusBar({ status, executionTime, isRunning, timeLimit, memoryLimit }) {
+export default function StatusBar({ status, executionTime, isRunning, timeLimit, memoryLimit, activeFile, saving }) {
   function getStatusText() {
     if (isRunning) return 'Compiling & Running...';
     if (!status) return 'Ready';
@@ -36,6 +36,12 @@ export default function StatusBar({ status, executionTime, isRunning, timeLimit,
     <div className="statusbar">
       <span className={`statusbar-status ${getStatusClass()}`}>{getStatusText()}</span>
       <span className="statusbar-right">
+        {activeFile && (
+          <span className="statusbar-file">
+            {activeFile}
+            {saving && <span className="statusbar-saving"> (Saving...)</span>}
+          </span>
+        )}
         {executionTime !== null && (
           <span className={`statusbar-time ${executionTime > timeLimit ? 'time-exceeded' : ''}`}>
             Time: {formatTime(executionTime)}

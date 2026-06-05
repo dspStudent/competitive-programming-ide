@@ -1,6 +1,9 @@
 import React from 'react';
 
-export default function Toolbar({ onRun, onStop, isRunning, theme, onThemeToggle, onNewFile, onOpenSettings, timeLimit, memoryLimit }) {
+export default function Toolbar({ onRun, onStop, isRunning, theme, onThemeToggle, onNewFile, onOpenSettings, timeLimit, memoryLimit, onPush, pushing, gitStatus, stopwatch }) {
+  const changeCount = gitStatus?.changes?.length || 0;
+  const noGit = gitStatus?.noGit;
+
   return (
     <div className="toolbar">
       <div className="toolbar-left">
@@ -28,9 +31,37 @@ export default function Toolbar({ onRun, onStop, isRunning, theme, onThemeToggle
             Run
           </button>
         )}
+        <span className="toolbar-separator">|</span>
+        <div className="stopwatch">
+          <span className={`stopwatch-display ${stopwatch.running ? 'stopwatch-running' : ''}`}>
+            {stopwatch.formatted}
+          </span>
+          <button
+            className={`btn-stopwatch ${stopwatch.running ? 'btn-stopwatch-active' : ''}`}
+            onClick={stopwatch.toggle}
+            title={stopwatch.running ? 'Pause' : 'Start'}
+          >
+            {stopwatch.running ? '||' : '▶'}
+          </button>
+          <button
+            className="btn-stopwatch"
+            onClick={stopwatch.reset}
+            title="Reset"
+          >
+            ↺
+          </button>
+        </div>
       </div>
       <div className="toolbar-right">
-        <button className="btn-toolbar" onClick={onNewFile} title="New File (load default template)">
+        <button
+          className="btn-push"
+          onClick={onPush}
+          disabled={pushing || !gitStatus?.hasChanges || noGit}
+          title={noGit ? 'No git repo - run git init & add remote first' : changeCount > 0 ? `Push ${changeCount} changed file(s)` : 'No changes to push'}
+        >
+          {pushing ? 'Pushing...' : noGit ? 'No Git' : `Push${changeCount > 0 ? ` (${changeCount})` : ''}`}
+        </button>
+        <button className="btn-toolbar" onClick={onNewFile} title="New File (create in workspace)">
           New
         </button>
         <button className="btn-toolbar" onClick={onThemeToggle} title="Toggle theme">

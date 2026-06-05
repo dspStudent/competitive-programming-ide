@@ -176,6 +176,55 @@ body {
   background: var(--bg-tertiary);
 }
 
+/* ===== Stopwatch ===== */
+.stopwatch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.stopwatch-display {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 48px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.stopwatch-display.stopwatch-running {
+  color: var(--badge-ok);
+}
+
+.btn-stopwatch {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-stopwatch:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-stopwatch-active {
+  color: var(--badge-ok);
+  border-color: var(--badge-ok);
+}
+
+.btn-stopwatch-active:hover {
+  color: var(--badge-tle);
+  border-color: var(--badge-tle);
+}
+
 /* ===== Panels ===== */
 .panel {
   display: flex;
@@ -717,6 +766,235 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #606060;
+}
+
+/* ===== File Explorer ===== */
+.file-explorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+}
+
+.file-explorer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--panel-header-bg);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  user-select: none;
+}
+
+.file-explorer-error {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--badge-ce);
+  background: rgba(207, 91, 86, 0.1);
+}
+
+.file-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.1s;
+}
+
+.file-item:hover {
+  background: var(--bg-secondary);
+}
+
+.file-item-active {
+  background: var(--bg-tertiary);
+  border-left: 2px solid var(--accent);
+}
+
+.file-item-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-item-actions {
+  display: none;
+  gap: 2px;
+}
+
+.file-item:hover .file-item-actions {
+  display: flex;
+}
+
+.btn-file-action {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 11px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-file-action:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-file-delete:hover {
+  color: var(--badge-ce);
+}
+
+.file-create-form,
+.file-rename-form {
+  padding: 4px 10px;
+}
+
+.file-create-form input,
+.file-rename-form input {
+  width: 100%;
+  padding: 3px 6px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  font-size: 12px;
+  outline: none;
+}
+
+/* ===== Unsaved Indicator ===== */
+.unsaved-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ===== File Tabs ===== */
+.file-tabs {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  background: var(--panel-header-bg);
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: auto;
+  user-select: none;
+}
+
+.file-tabs::-webkit-scrollbar {
+  height: 3px;
+}
+
+.file-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 100%;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-right: 1px solid var(--border-color);
+  white-space: nowrap;
+  transition: background 0.1s, color 0.1s;
+}
+
+.file-tab:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.file-tab-active {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--accent);
+}
+
+.file-tab-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.file-tab-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  border-radius: 2px;
+}
+
+.file-tab-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--badge-ce);
+}
+
+/* ===== Editor Area ===== */
+.editor-area {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.editor-wrapper {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ===== Push Button ===== */
+.btn-push {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 3px 12px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.btn-push:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-push:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== StatusBar File Info ===== */
+.statusbar-file {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.statusbar-saving {
+  color: var(--badge-running);
+  font-style: italic;
 }
 
 /* ===== Allotment overrides ===== */

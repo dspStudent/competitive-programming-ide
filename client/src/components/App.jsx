@@ -9,17 +9,15 @@ import Toolbar from './Toolbar';
 import StatusBar from './StatusBar';
 import AlertModal from './AlertModal';
 import SettingsModal from './SettingsModal';
+import FileExplorer from './FileExplorer';
+import FileTabs from './FileTabs';
 import { useCodeRunner } from '../hooks/useCodeRunner';
-import { STORAGE_KEYS, DEFAULT_TEMPLATE, EXECUTION_LIMITS } from '../utils/constants';
-
-function getInitialCode() {
-  return localStorage.getItem(STORAGE_KEYS.CODE) ||
-    localStorage.getItem(STORAGE_KEYS.TEMPLATE) ||
-    DEFAULT_TEMPLATE;
-}
+import { useFileSystem } from '../hooks/useFileSystem';
+import { useGit } from '../hooks/useGit';
+import { useStopwatch } from '../hooks/useStopwatch';
+import { STORAGE_KEYS, DEFAULT_FILENAME, EXECUTION_LIMITS } from '../utils/constants';
 
 export default function App() {
-  const [code, setCode] = useState(getInitialCode);
   const [input, setInput] = useState(() => localStorage.getItem(STORAGE_KEYS.INPUT) || '');
   const [expectedOutput, setExpectedOutput] = useState(() => localStorage.getItem(STORAGE_KEYS.EXPECTED_OUTPUT) || '');
   const [theme, setTheme] = useState(() => localStorage.getItem(STORAGE_KEYS.THEME) || 'dark');
@@ -36,6 +34,9 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
 
   const { output, status, error, executionTime, isRunning, runCode, stopCode } = useCodeRunner();
+  const fileSystem = useFileSystem();
+  const { gitStatus, pushing, pushResult, fetchStatus, commitAndPush } = useGit();
+  const stopwatch = useStopwatch();
 
   const comparisonSettings = useMemo(() => ({
     caseInsensitive,
@@ -43,11 +44,36 @@ export default function App() {
     ignoreBlankLines,
   }), [caseInsensitive, trimWhitespace, ignoreBlankLines]);
 
-  // Persist code and input to localStorage
+  // Initialize: fetch file list and open default file
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CODE, code);
-  }, [code]);
+    async function init() {
+      const files = await fileSystem.fetchFileList();
+      if (files.length > 0) {
+        const savedActive = localStorage.getItem(STORAGE_KEYS.ACTIVE_FILE);
+        const targetFile = savedActive && files.some(f => f.filename === savedActive)
+          ? savedActive
+          : DEFAULT_FILENAME;
+        if (files.some(f => f.filename === targetFile)) {
+          await fileSystem.openFile(targetFile);
+        } else {
+          await fileSystem.openFile(files[0].filename);
+        }
+      }
+      fetchStatus();
+    }
+    init();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Refresh git status after file saves
+  useEffect(() => {
+    function onFileSaved() {
+      fetchStatus();
+    }
+    window.addEventListener('cp-ide-file-saved', onFileSaved);
+    return () => window.removeEventListener('cp-ide-file-saved', onFileSaved);
+  }, [fetchStatus]);
+
+  // Persist input and expected output
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.INPUT, input);
   }, [input]);
@@ -69,11 +95,13 @@ export default function App() {
     }
   }, [status]);
 
-  // Run handler
+  // Run handler - use active file's content
   const handleRun = useCallback(async () => {
     if (isRunning) return;
-    await runCode(code, input, timeLimit, memoryLimit);
-  }, [code, input, isRunning, runCode, timeLimit, memoryLimit]);
+    const code = fileSystem.activeFileContent;
+    const filename = fileSystem.activeFile;
+    await runCode(code, input, timeLimit, memoryLimit, filename);
+  }, [fileSystem.activeFileContent, fileSystem.activeFile, input, isRunning, runCode, timeLimit, memoryLimit]);
 
   // Stop handler
   const handleStop = useCallback(() => {
@@ -93,12 +121,34 @@ export default function App() {
     setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
   }
 
+  // New file - prompt for name, create on server
   function handleNewFile() {
-    const template = localStorage.getItem(STORAGE_KEYS.TEMPLATE) || DEFAULT_TEMPLATE;
-    if (code.trim() !== '' && code !== template) {
-      if (!window.confirm('Replace current code with default template?')) return;
+    const name = window.prompt('Enter filename (e.g. Solution.java):');
+    if (!name) return;
+    const filename = name.endsWith('.java') ? name : name + '.java';
+    fileSystem.createFile(filename).then(result => {
+      if (!result.success) {
+        alert(result.error);
+      }
+    });
+  }
+
+  // Push handler - include stopwatch time, reset after success
+  async function handlePush() {
+    const result = await commitAndPush(stopwatch.elapsed);
+    if (result.success && result.pushed) {
+      stopwatch.reset();
+      fetchStatus();
+    } else if (result.error) {
+      alert(`Push failed: ${result.error}`);
     }
-    setCode(template);
+  }
+
+  // Code change handler - update file content
+  function handleCodeChange(value) {
+    if (fileSystem.activeFile) {
+      fileSystem.updateFileContent(fileSystem.activeFile, value || '');
+    }
   }
 
   function handleSettingsChange(settings) {
@@ -125,20 +175,46 @@ export default function App() {
         onOpenSettings={() => setShowSettings(true)}
         timeLimit={timeLimit}
         memoryLimit={memoryLimit}
+        onPush={handlePush}
+        pushing={pushing}
+        gitStatus={gitStatus}
+        stopwatch={stopwatch}
       />
 
       <div className="main-content">
-        <Allotment defaultSizes={[65, 35]}>
-          <Allotment.Pane minSize={300}>
-            <CodeEditor
-              code={code}
-              onChange={(val) => setCode(val || '')}
-              theme={theme}
-              fontSize={fontSize}
-              tabSize={tabSize}
-              wordWrap={wordWrap}
-              onRun={handleRun}
+        <Allotment defaultSizes={[15, 50, 35]}>
+          <Allotment.Pane minSize={120} maxSize={300}>
+            <FileExplorer
+              files={fileSystem.files}
+              activeFile={fileSystem.activeFile}
+              unsavedChanges={fileSystem.unsavedChanges}
+              onFileClick={(filename) => fileSystem.openFile(filename)}
+              onCreate={(filename) => fileSystem.createFile(filename)}
+              onDelete={(filename) => fileSystem.deleteFile(filename)}
+              onRename={(oldName, newName) => fileSystem.renameFile(oldName, newName)}
             />
+          </Allotment.Pane>
+          <Allotment.Pane minSize={300}>
+            <div className="editor-area">
+              <FileTabs
+                openFiles={fileSystem.openFiles}
+                activeFile={fileSystem.activeFile}
+                unsavedChanges={fileSystem.unsavedChanges}
+                onTabClick={(filename) => fileSystem.openFile(filename)}
+                onTabClose={(filename) => fileSystem.closeTab(filename)}
+              />
+              <div className="editor-wrapper">
+                <CodeEditor
+                  code={fileSystem.activeFileContent}
+                  onChange={handleCodeChange}
+                  theme={theme}
+                  fontSize={fontSize}
+                  tabSize={tabSize}
+                  wordWrap={wordWrap}
+                  onRun={handleRun}
+                />
+              </div>
+            </div>
           </Allotment.Pane>
           <Allotment.Pane minSize={200}>
             <Allotment vertical defaultSizes={[33, 33, 34]}>
@@ -168,6 +244,8 @@ export default function App() {
         isRunning={isRunning}
         timeLimit={timeLimit}
         memoryLimit={memoryLimit}
+        activeFile={fileSystem.activeFile}
+        saving={fileSystem.saving}
       />
 
       {alertType && (

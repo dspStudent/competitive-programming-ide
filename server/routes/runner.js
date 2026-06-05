@@ -14,7 +14,7 @@ router.post('/run', async (req, res) => {
     });
   }
 
-  const { code, input, timeLimit, memoryLimit } = req.body;
+  const { code, input, timeLimit, memoryLimit, filename } = req.body;
 
   if (!code || typeof code !== 'string') {
     return res.status(400).json({
