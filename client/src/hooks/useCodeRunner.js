@@ -11,7 +11,7 @@ export function useCodeRunner() {
   });
   const [isRunning, setIsRunning] = useState(false);
 
-  const runCode = useCallback(async (code, input, timeLimit, memoryLimit) => {
+  const runCode = useCallback(async (code, input, timeLimit, memoryLimit, filename) => {
     setIsRunning(true);
     setOutput('');
     setError('');
@@ -22,7 +22,7 @@ export function useCodeRunner() {
       const response = await fetch('/api/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, input, timeLimit, memoryLimit }),
+        body: JSON.stringify({ code, input, timeLimit, memoryLimit, filename }),
       });
 
       const result = await response.json();

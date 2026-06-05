@@ -1,8 +1,10 @@
-export const DEFAULT_TEMPLATE = `public class Main {
+export const DEFAULT_TEMPLATE = `public class %s {
     public static void main(String[] args) {
 
     }
 }`;
+
+export const DEFAULT_FILENAME = 'Main.java';
 
 export const STORAGE_KEYS = {
   CODE: 'cp-ide-code',
@@ -23,6 +25,8 @@ export const STORAGE_KEYS = {
   CASE_INSENSITIVE: 'cp-ide-case-insensitive',
   TRIM_WHITESPACE: 'cp-ide-trim-whitespace',
   IGNORE_BLANK_LINES: 'cp-ide-ignore-blank-lines',
+  OPEN_FILES: 'cp-ide-open-files',
+  ACTIVE_FILE: 'cp-ide-active-file',
 };
 
 export const EXECUTION_LIMITS = {
